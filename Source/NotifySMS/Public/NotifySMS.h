@@ -24,7 +24,7 @@ private:
 
 	void RegisterMenus();
 	bool Tick(float DeltaTime);
-	void SendEmail();
+	void SendEmail(const FString& NotificationString);
 
 	TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
 	void OnClosePluginTab(TSharedRef<SDockTab> TabBeingClosed);

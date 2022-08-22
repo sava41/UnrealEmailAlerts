@@ -122,24 +122,22 @@ void FNotifySMSModule::RegisterMenus()
 
 bool FNotifySMSModule::Tick(float DeltaTime)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Lel"));
 	TArray< TSharedRef<SWindow> > NotificationWindows;
 	FSlateNotificationManager::Get().GetWindows(NotificationWindows);
 	for (TSharedRef<SWindow> Window : NotificationWindows)
 	{
-		TSharedRef<const SNotificationList> NotificationList = StaticCastSharedRef<const SNotificationList>(Window->GetContent());
-
 		if (Window->GetType() == EWindowType::Notification && Window->GetTitle().IsEmpty())
 		{
-			SendEmail();
+			FString NotificationString = Window->GetContent()->GetAccessibleSummary().ToString();
+			SendEmail(NotificationString);
 			Window->SetTitle(FText::FromString("lol"));
-			UE_LOG(LogTemp, Warning, TEXT("lol %s"), *FString(Window->GetContent()->ToString()));
+			//UE_LOG(LogTemp, Warning, TEXT("Notification: %s"), *FString(Window->GetContent()->GetAccessibleSummary().ToString()));
 		}
 	}
 	return true;
 }
 
-void FNotifySMSModule::SendEmail()
+void FNotifySMSModule::SendEmail(const FString& NotificationString)
 {
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> httpRequest = FHttpModule::Get().CreateRequest();
 	httpRequest->SetURL(TEXT("https://api.sendgrid.com/v3/mail/send"));
@@ -147,7 +145,16 @@ void FNotifySMSModule::SendEmail()
 	httpRequest->SetVerb(TEXT("POST"));
 	httpRequest->SetHeader(TEXT("Authorization"), TEXT("Bearer ") + FString(SENDGRID_API_KEY));
 	httpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
-	httpRequest->SetContentAsString(TEXT("{\"personalizations\": [{\"to\": [{\"email\": \"sava41@gmail.com\"}]}],\"from\": {\"email\": \"sava41@gmail.com\"},\"subject\": \"Unreal Engine Did Something\",\"content\": [{\"type\": \"text / plain\", \"value\": \"lol\"}]}"));
+
+	const FString Payload(TEXT("{\"personalizations\": [{ \
+		\"to\": [{\"email\": \"sava41@gmail.com\"}]}], \
+		\"from\": {\"email\": \"sava41@gmail.com\"}, \
+		\"subject\": \"Unreal Engine Did Something\", \
+		\"content\": [{\"type\": \"text / plain\", \"value\": \"") 
+	+ NotificationString +
+	TEXT("\"}]}"));
+
+	httpRequest->SetContentAsString(Payload);
 
 	httpRequest->ProcessRequest();
 }
