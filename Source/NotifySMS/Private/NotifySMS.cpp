@@ -1,6 +1,8 @@
 #include "NotifySMS.h"
 #include "NotifySMSStyle.h"
 #include "NotifySMSCommands.h"
+#include "Twilio.h"
+
 #include "LevelEditor.h"
 #include "Widgets/Docking/SDockTab.h"
 #include "Widgets/Layout/SBox.h"
@@ -10,7 +12,6 @@
 #include "HttpModule.h"
 #include "ToolMenus.h"
 #include "SNotifyOptionsWidget.h"
-
 
 static const FName NotifySMSTabName("NotifySMS");
 
@@ -132,7 +133,7 @@ bool FNotifySMSModule::Tick(float DeltaTime)
 		{
 			SendEmail();
 			Window->SetTitle(FText::FromString("lol"));
-			UE_LOG(LogTemp, Warning, TEXT("lol %s"), *FString(Window->GetContent()->GetChildren()->GetChildAt(0)->ToString()));
+			UE_LOG(LogTemp, Warning, TEXT("lol %s"), *FString(Window->GetContent()->ToString()));
 		}
 	}
 	return true;
@@ -144,7 +145,7 @@ void FNotifySMSModule::SendEmail()
 	httpRequest->SetURL(TEXT("https://api.sendgrid.com/v3/mail/send"));
 
 	httpRequest->SetVerb(TEXT("POST"));
-	httpRequest->SetHeader(TEXT("Authorization"), TEXT("Bearer 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"));
+	httpRequest->SetHeader(TEXT("Authorization"), TEXT("Bearer ") + FString(SENDGRID_API_KEY));
 	httpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
 	httpRequest->SetContentAsString(TEXT("{\"personalizations\": [{\"to\": [{\"email\": \"sava41@gmail.com\"}]}],\"from\": {\"email\": \"sava41@gmail.com\"},\"subject\": \"Unreal Engine Did Something\",\"content\": [{\"type\": \"text / plain\", \"value\": \"lol\"}]}"));
 
