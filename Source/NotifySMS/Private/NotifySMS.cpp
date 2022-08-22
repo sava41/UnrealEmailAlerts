@@ -60,7 +60,7 @@ void FNotifySMSModule::ShutdownModule()
 TSharedRef<SDockTab> FNotifySMSModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
 	TickDelegate = FTickerDelegate::CreateRaw(this, &FNotifySMSModule::Tick);
-	TickDelegateHandle = FTicker::GetCoreTicker().AddTicker(TickDelegate);
+	TickDelegateHandle = FTicker::GetCoreTicker().AddTicker(TickDelegate, 1.0);
 
 	FText WidgetText = FText::Format(
 		LOCTEXT("WindowWidgetText", "Add code to {0} in {1} to override this window's contents"),
@@ -71,7 +71,6 @@ TSharedRef<SDockTab> FNotifySMSModule::OnSpawnPluginTab(const FSpawnTabArgs& Spa
 	TSharedRef<SDockTab> PluginTab = SNew(SDockTab)
 		.TabRole(ETabRole::NomadTab)
 		[
-			// Put your tab content here!
 			SNew(SBox)
 			.HAlign(HAlign_Left)
 			.VAlign(VAlign_Top)
@@ -130,8 +129,8 @@ bool FNotifySMSModule::Tick(float DeltaTime)
 		{
 			FString NotificationString = Window->GetContent()->GetAccessibleSummary().ToString();
 			SendEmail(NotificationString);
-			Window->SetTitle(FText::FromString("lol"));
-			//UE_LOG(LogTemp, Warning, TEXT("Notification: %s"), *FString(Window->GetContent()->GetAccessibleSummary().ToString()));
+			Window->SetTitle(FText::FromString("ok"));
+			UE_LOG(LogTemp, Warning, TEXT("Notification: %s"), *FString(Window->GetContent()->GetAccessibleSummary().ToString()));
 		}
 	}
 	return true;
