@@ -76,6 +76,8 @@ TSharedRef<SDockTab> FNotifySMSModule::OnSpawnPluginTab(const FSpawnTabArgs& Spa
 			.VAlign(VAlign_Top)
 			[
 				SNew(SNotifyOptionsWidget)
+				.EmailCallback(FOnTextCommitted::CreateRaw(this, &FNotifySMSModule::SetEmail))
+				//.FiltersCallback(this, &FNotifySMSModule::SetFilters)
 			]
 		];
 
@@ -83,6 +85,20 @@ TSharedRef<SDockTab> FNotifySMSModule::OnSpawnPluginTab(const FSpawnTabArgs& Spa
 
 	return PluginTab;
 }
+
+void FNotifySMSModule::SetEmail(const FText& InText, ETextCommit::Type InCommitType)
+{
+	EmailAddress = InText.ToString();
+
+	return;
+}
+
+void FNotifySMSModule::SetFilters(const FText& InText)
+{
+
+	return;
+}
+
 void FNotifySMSModule::OnClosePluginTab(TSharedRef<SDockTab> TabBeingClosed)
 {
 	FTicker::GetCoreTicker().RemoveTicker(TickDelegateHandle);
@@ -127,16 +143,18 @@ bool FNotifySMSModule::Tick(float DeltaTime)
 	{
 		if (Window->GetType() == EWindowType::Notification && Window->GetTitle().IsEmpty())
 		{
-			FString NotificationString = Window->GetContent()->GetAccessibleSummary().ToString();
-			SendEmail(NotificationString);
+			FString NotificationMessage = Window->GetContent()->GetAccessibleSummary().ToString();
+			SendEmail(NotificationMessage);
+			
 			Window->SetTitle(FText::FromString("ok"));
-			UE_LOG(LogTemp, Warning, TEXT("Notification: %s"), *FString(Window->GetContent()->GetAccessibleSummary().ToString()));
+			
+			//UE_LOG(LogTemp, Warning, TEXT("Notification: %s Sent to: %s"), *FString(Window->GetContent()->GetAccessibleSummary().ToString()), *FString(EmailAddress));
 		}
 	}
 	return true;
 }
 
-void FNotifySMSModule::SendEmail(const FString& NotificationString)
+void FNotifySMSModule::SendEmail(const FString& NotificationMessage)
 {
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> httpRequest = FHttpModule::Get().CreateRequest();
 	httpRequest->SetURL(TEXT("https://api.sendgrid.com/v3/mail/send"));
@@ -146,12 +164,11 @@ void FNotifySMSModule::SendEmail(const FString& NotificationString)
 	httpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
 
 	const FString Payload(TEXT("{\"personalizations\": [{ \
-		\"to\": [{\"email\": \"sava41@gmail.com\"}]}], \
+		\"to\": [{\"email\": \"" + EmailAddress + "\"}]}], \
 		\"from\": {\"email\": \"sava41@gmail.com\"}, \
 		\"subject\": \"Unreal Engine Did Something\", \
 		\"content\": [{\"type\": \"text / plain\", \"value\": \"") 
-	+ NotificationString +
-	TEXT("\"}]}"));
+	+ NotificationMessage + TEXT("\"}]}"));
 
 	httpRequest->SetContentAsString(Payload);
 

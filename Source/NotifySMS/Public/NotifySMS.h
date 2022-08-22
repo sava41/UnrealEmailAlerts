@@ -19,18 +19,23 @@ public:
 	
 	/** This function will be bound to Command (by default it will bring up plugin window) */
 	void PluginButtonClicked();
+
+	void SetEmail(const FText& InText, ETextCommit::Type InCommitType);
+	void SetFilters(const FText& InText);
 	
 private:
 
 	void RegisterMenus();
 	bool Tick(float DeltaTime);
-	void SendEmail(const FString& NotificationString);
+	void SendEmail(const FString& NotificationMessage);
 
 	TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
 	void OnClosePluginTab(TSharedRef<SDockTab> TabBeingClosed);
 
 	FTickerDelegate TickDelegate;
 	FDelegateHandle TickDelegateHandle;
+
+	FString EmailAddress = FString(TEXT("myemail@example.com"));
 
 private:
 	TSharedPtr<class FUICommandList> PluginCommands;

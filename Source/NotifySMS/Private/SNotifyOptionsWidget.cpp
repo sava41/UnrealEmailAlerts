@@ -11,6 +11,10 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SNotifyOptionsWidget::Construct(const FArguments& InArgs)
 {
+
+	EmailCallback = InArgs._EmailCallback;
+	FiltersCallback = InArgs._FiltersCallback;
+	
 	ChildSlot
 	[
 		SNew(SVerticalBox)
@@ -22,9 +26,8 @@ void SNotifyOptionsWidget::Construct(const FArguments& InArgs)
 		+SVerticalBox::Slot().AutoHeight()
 		[
 			SAssignNew(PhoneNumberTextBox, SEditableTextBox)
-			.HintText(LOCTEXT("email", "sava41@gmail.com"))
-			.OnTextCommitted(this, &SNotifyOptionsWidget::VerifySMSNumber)
-			.OnTextChanged(this, &SNotifyOptionsWidget::FormatSMSNumber)
+			.HintText(LOCTEXT("email", "myemail@example.com"))
+			.OnTextCommitted(this, &SNotifyOptionsWidget::OnTextCommitted)
 		]
 		//+SVerticalBox::Slot().AutoHeight()
 		//[
@@ -71,24 +74,9 @@ void SNotifyOptionsWidget::Construct(const FArguments& InArgs)
 	];
 }
 
-void SNotifyOptionsWidget::VerifySMSNumber(const FText& InText, ETextCommit::Type InCommitType)
+void SNotifyOptionsWidget::OnTextCommitted(const FText& InText, ETextCommit::Type InCommitType)
 {
-	//if (PhoneNumberTextBox.IsValid())
-	//{
-	//	PhoneNumberTextBox->SetText(FText::FromString("lol"));
-	//}
-
-	return;
-}
-
-void SNotifyOptionsWidget::FormatSMSNumber(const FText& InText)
-{
-	
-	if (PhoneNumberTextBox.IsValid())
-	{
-		PhoneNumberTextBox->SetText(FText::FromString("lel"));
-	}
-	return;
+	EmailCallback.ExecuteIfBound(InText, InCommitType);
 }
 
 FReply SNotifyOptionsWidget::SpawnNotification()

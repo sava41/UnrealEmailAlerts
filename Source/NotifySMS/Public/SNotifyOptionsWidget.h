@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -14,7 +12,9 @@ class SNotifyOptionsWidget : public SCompoundWidget
 public:
 
 	SLATE_BEGIN_ARGS(SNotifyOptionsWidget)
-	{}
+		{}
+		SLATE_EVENT(FOnTextCommitted, EmailCallback)
+		SLATE_EVENT(FOnClicked, FiltersCallback)
 
 	SLATE_END_ARGS()
 
@@ -27,10 +27,14 @@ public:
 
 	FReply SpawnNotification();
 
+protected:
+
+	FOnTextCommitted EmailCallback;
+	FOnClicked FiltersCallback;
+
 private:
 
-	void VerifySMSNumber(const FText& InText, ETextCommit::Type InCommitType);
-	void FormatSMSNumber(const FText& InText);
+	void OnTextCommitted(const FText& InText, ETextCommit::Type InCommitType);
 
 	TSharedPtr<SEditableTextBox> PhoneNumberTextBox;
 	FText PhoneNumber;
