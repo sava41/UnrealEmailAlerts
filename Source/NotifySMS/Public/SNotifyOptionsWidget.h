@@ -41,7 +41,6 @@ private:
 	void OnCheckStateChanged(ECheckBoxState InState);
 
 	TSharedPtr<SEditableTextBox> PhoneNumberTextBox;
-	FText PhoneNumber;
 
 	TWeakPtr<SNotificationItem> NotificationPtr;
 

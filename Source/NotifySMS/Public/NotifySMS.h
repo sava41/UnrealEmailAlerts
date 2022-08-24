@@ -23,6 +23,7 @@ private:
 	void RegisterMenus();
 	bool Tick(float DeltaTime);
 	void SendEmail(const FString& NotificationMessage);
+	bool IsEmailValid(const FString& Email);
 
 	TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
 	void OnClosePluginTab(TSharedRef<SDockTab> TabBeingClosed);
@@ -35,7 +36,7 @@ private:
 
 	FString EmailAddress = FString(TEXT("myemail@example.com"));
 
-	TSet<int32> NotificationFilters;
+	TSet<uint32> NotificationFilters;
 
 	TSharedPtr<class FUICommandList> PluginCommands;
 };

@@ -3,8 +3,8 @@
 #include "CoreMinimal.h"
 
 struct NotificationType {
-	const FString Description;
-	const FString SearchKeyword;
+	FString Description;
+	FString SearchKeyword;
 };
 
 const TArray<NotificationType> Notifications = 

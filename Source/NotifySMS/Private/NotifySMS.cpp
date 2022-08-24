@@ -14,6 +14,8 @@
 #include "SNotifyOptionsWidget.h"
 #include "NotificationFilters.h"
 
+#include <regex>
+
 static const FName NotifySMSTabName("NotifySMS");
 
 #define LOCTEXT_NAMESPACE "FNotifySMSModule"
@@ -89,7 +91,12 @@ TSharedRef<SDockTab> FNotifySMSModule::OnSpawnPluginTab(const FSpawnTabArgs& Spa
 
 void FNotifySMSModule::SetEmail(const FText& InText, ETextCommit::Type InCommitType)
 {
-	EmailAddress = InText.ToString();
+	if (IsEmailValid(InText.ToString())) {
+		EmailAddress = InText.ToString();
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Invalid email"));
+	}
 
 	return;
 }
@@ -180,6 +187,15 @@ void FNotifySMSModule::SendEmail(const FString& NotificationMessage)
 	httpRequest->SetContentAsString(Payload);
 
 	httpRequest->ProcessRequest();
+}
+
+bool FNotifySMSModule::IsEmailValid(const FString& Email)
+{
+	// define a regular expression
+	const std::regex pattern
+	("(\\w+)(\\.|_)?(\\w*)@(\\w+)(\\.(\\w+))+");
+	// try to match the string with the regular expression
+	return std::regex_match(TCHAR_TO_UTF8(*Email), pattern);
 }
 
 #undef LOCTEXT_NAMESPACE
