@@ -12,6 +12,7 @@
 #include "HttpModule.h"
 #include "ToolMenus.h"
 #include "SNotifyOptionsWidget.h"
+#include "NotificationFilters.h"
 
 static const FName NotifySMSTabName("NotifySMS");
 
@@ -66,7 +67,7 @@ TSharedRef<SDockTab> FNotifySMSModule::OnSpawnPluginTab(const FSpawnTabArgs& Spa
 		LOCTEXT("WindowWidgetText", "Add code to {0} in {1} to override this window's contents"),
 		FText::FromString(TEXT("FNotifySMSModule::OnSpawnPluginTab")),
 		FText::FromString(TEXT("NotifySMS.cpp"))
-		);
+	);
 
 	TSharedRef<SDockTab> PluginTab = SNew(SDockTab)
 		.TabRole(ETabRole::NomadTab)
@@ -77,7 +78,7 @@ TSharedRef<SDockTab> FNotifySMSModule::OnSpawnPluginTab(const FSpawnTabArgs& Spa
 			[
 				SNew(SNotifyOptionsWidget)
 				.EmailCallback(FOnTextCommitted::CreateRaw(this, &FNotifySMSModule::SetEmail))
-				//.FiltersCallback(this, &FNotifySMSModule::SetFilters)
+				.FiltersCallback(FOnFilterStateChanged::CreateRaw(this, &FNotifySMSModule::SetNotification))
 			]
 		];
 
@@ -93,10 +94,16 @@ void FNotifySMSModule::SetEmail(const FText& InText, ETextCommit::Type InCommitT
 	return;
 }
 
-void FNotifySMSModule::SetFilters(const FText& InText)
+void FNotifySMSModule::SetNotification(uint32 Index, bool IsEnabled)
 {
-
-	return;
+	if (Notifications.IsValidIndex(Index)) {
+		if (IsEnabled) {
+			NotificationFilters.Add(Index);
+		}
+		else {
+			NotificationFilters.Remove(Index);
+		}
+	}
 }
 
 void FNotifySMSModule::OnClosePluginTab(TSharedRef<SDockTab> TabBeingClosed)
@@ -165,7 +172,7 @@ void FNotifySMSModule::SendEmail(const FString& NotificationMessage)
 
 	const FString Payload(TEXT("{\"personalizations\": [{ \
 		\"to\": [{\"email\": \"" + EmailAddress + "\"}]}], \
-		\"from\": {\"email\": \"sava41@gmail.com\"}, \
+		\"from\": {\"email\": \"unrealalerts@gmail.com\"}, \
 		\"subject\": \"Unreal Engine Did Something\", \
 		\"content\": [{\"type\": \"text / plain\", \"value\": \"") 
 	+ NotificationMessage + TEXT("\"}]}"));

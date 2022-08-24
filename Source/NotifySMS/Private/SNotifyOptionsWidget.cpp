@@ -4,6 +4,7 @@
 #include "Widgets/Input/SNumericEntryBox.h"
 #include "Widgets/SBoxPanel.h"
 #include "Framework/Notifications/NotificationManager.h"
+#include "NotificationFilters.h"
 
 #define LOCTEXT_NAMESPACE "SNotifyOptionsWidget"
 
@@ -14,69 +15,72 @@ void SNotifyOptionsWidget::Construct(const FArguments& InArgs)
 
 	EmailCallback = InArgs._EmailCallback;
 	FiltersCallback = InArgs._FiltersCallback;
-	
-	ChildSlot
+
+	TSharedPtr<SVerticalBox> Container = SNew(SVerticalBox);
+
+	Container->AddSlot().AutoHeight()
 	[
-		SNew(SVerticalBox)
-		+SVerticalBox::Slot().AutoHeight()
-		[
-			SNew(STextBlock)
-			.Text(FText::Format(LOCTEXT("MyWidgetName", "{0}"), FText::FromName("Enter Email Address")))
-		]
-		+SVerticalBox::Slot().AutoHeight()
-		[
-			SAssignNew(PhoneNumberTextBox, SEditableTextBox)
-			.HintText(LOCTEXT("email", "myemail@example.com"))
-			.OnTextCommitted(this, &SNotifyOptionsWidget::OnTextCommitted)
-		]
-		//+SVerticalBox::Slot().AutoHeight()
-		//[
-		//	SNew(SButton)
-		//	.Text(LOCTEXT("SendTestSMS", "Send Test SMS"))
-		//	.ToolTipText(LOCTEXT("SendTestSMS_Tooltip", "Sends a test message to the entered phone number"))
-		//]
-		+SVerticalBox::Slot().AutoHeight()
+		SNew(STextBlock)
+		.Text(FText::Format(LOCTEXT("MyWidgetName", "{0}"), FText::FromName("Enter Email Address")))
+	];
+
+	Container->AddSlot().AutoHeight()
+	[
+		SAssignNew(PhoneNumberTextBox, SEditableTextBox)
+		.HintText(LOCTEXT("email", "myemail@example.com"))
+		.OnTextCommitted(this, &SNotifyOptionsWidget::OnTextCommitted)
+	];
+
+	Container->AddSlot().AutoHeight()
 		[
 			SNew(STextBlock)
 			.Text(FText::Format(LOCTEXT("MyWidgetName", "{0}"), FText::FromName("Select Notification Types")))
-		]
-		+SVerticalBox::Slot().AutoHeight()
+		];
+
+	for (int Index = 0; Index < Notifications.Num(); Index++) {
+		TSharedPtr<SCheckBox> Checkbox;
+
+		Container->AddSlot().AutoHeight()
 		[
-			SNew(SCheckBox)
-		]
-		+ SVerticalBox::Slot().AutoHeight()
-		[
-			SNew(SCheckBox)
-		]
-		+ SVerticalBox::Slot().AutoHeight()
-		[
-			SNew(SCheckBox)
-		]
-		+ SVerticalBox::Slot().AutoHeight()
-		[
-			SNew(SCheckBox)
-		]
-		+ SVerticalBox::Slot().AutoHeight()
-		[
-			SNew(SCheckBox)
-		]
-		+ SVerticalBox::Slot().AutoHeight()
-		[
-			SNew(SCheckBox)
-		]
-		+ SVerticalBox::Slot().AutoHeight()
-		[
-			SNew(SButton)
-			.Text(LOCTEXT("SpawnNotification", "Debug Notification"))
-			.ToolTipText(LOCTEXT("SpawnNotification_Tooltip", "Creates a super cool Notification!"))
-			.OnClicked(this, &SNotifyOptionsWidget::SpawnNotification)
-		]
+			SNew(SHorizontalBox)
+			+SHorizontalBox::Slot()
+			[
+				SNew(STextBlock)
+				.Text(FText::Format(LOCTEXT("MyWidgetName", "{0}"), FText::FromString(Notifications[Index].Description)))
+			]
+			+SHorizontalBox::Slot()
+			[
+				SAssignNew(Checkbox, SCheckBox)
+				.OnCheckStateChanged(this, &SNotifyOptionsWidget::OnCheckStateChanged)
+			]
+		];
+
+		FilterCheckboxes.Add(Checkbox);
+	}
+	Container->AddSlot().AutoHeight()
+	[
+		SNew(SButton)
+		.Text(LOCTEXT("SpawnNotification", "Debug Notification"))
+		.ToolTipText(LOCTEXT("SpawnNotification_Tooltip", "Creates a super cool Notification!"))
+		.OnClicked(this, &SNotifyOptionsWidget::SpawnNotification)
+	];
+	
+	ChildSlot
+	[
+		Container->AsShared()
 	];
 }
 
 void SNotifyOptionsWidget::OnTextCommitted(const FText& InText, ETextCommit::Type InCommitType)
 {
 	EmailCallback.ExecuteIfBound(InText, InCommitType);
+}
+
+void SNotifyOptionsWidget::OnCheckStateChanged(ECheckBoxState InState)
+{
+	for (int Index = 0; Index < FilterCheckboxes.Num(); Index++) {
+		FiltersCallback.ExecuteIfBound(Index, FilterCheckboxes[Index]->IsChecked());
+	}
 }
 
 FReply SNotifyOptionsWidget::SpawnNotification()

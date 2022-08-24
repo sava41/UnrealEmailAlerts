@@ -1,6 +1,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NotificationFilters.h"
+
+DECLARE_DELEGATE_RetVal_TwoParams(void, FOnFilterStateChanged, uint32 /* Index */, bool /* IsEnabled */)
 
 /**
  * A CompoundWidget is the base from which most non-primitive widgets should be built.
@@ -12,9 +15,9 @@ class SNotifyOptionsWidget : public SCompoundWidget
 public:
 
 	SLATE_BEGIN_ARGS(SNotifyOptionsWidget)
-		{}
+	{}
+		SLATE_EVENT(FOnFilterStateChanged, FiltersCallback)
 		SLATE_EVENT(FOnTextCommitted, EmailCallback)
-		SLATE_EVENT(FOnClicked, FiltersCallback)
 
 	SLATE_END_ARGS()
 
@@ -30,16 +33,17 @@ public:
 protected:
 
 	FOnTextCommitted EmailCallback;
-	FOnClicked FiltersCallback;
+	FOnFilterStateChanged FiltersCallback;
 
 private:
 
 	void OnTextCommitted(const FText& InText, ETextCommit::Type InCommitType);
+	void OnCheckStateChanged(ECheckBoxState InState);
 
 	TSharedPtr<SEditableTextBox> PhoneNumberTextBox;
 	FText PhoneNumber;
 
 	TWeakPtr<SNotificationItem> NotificationPtr;
 
-
+	TArray<TSharedPtr<SCheckBox>> FilterCheckboxes;
 };

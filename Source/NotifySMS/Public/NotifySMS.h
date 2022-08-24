@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -19,9 +17,6 @@ public:
 	
 	/** This function will be bound to Command (by default it will bring up plugin window) */
 	void PluginButtonClicked();
-
-	void SetEmail(const FText& InText, ETextCommit::Type InCommitType);
-	void SetFilters(const FText& InText);
 	
 private:
 
@@ -32,11 +27,15 @@ private:
 	TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
 	void OnClosePluginTab(TSharedRef<SDockTab> TabBeingClosed);
 
+	void SetEmail(const FText& InText, ETextCommit::Type InCommitType);
+	void SetNotification(uint32 Index, bool IsEnabled);
+
 	FTickerDelegate TickDelegate;
 	FDelegateHandle TickDelegateHandle;
 
 	FString EmailAddress = FString(TEXT("myemail@example.com"));
 
-private:
+	TSet<int32> NotificationFilters;
+
 	TSharedPtr<class FUICommandList> PluginCommands;
 };
