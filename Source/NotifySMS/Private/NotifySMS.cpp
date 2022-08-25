@@ -166,9 +166,12 @@ bool FNotifySMSModule::Tick(float DeltaTime)
 		{
 			FString NotificationMessage = Window->GetContent()->GetAccessibleSummary().ToString();
 
-			if (!EmailAddress.IsEmpty()) {
-				SendEmail(NotificationMessage);
-				UE_LOG(LogTemp, Display, TEXT("Notification: '%s' Sent to: '%s'"), *FString(Window->GetContent()->GetAccessibleSummary().ToString()), *FString(EmailAddress));
+			for (auto It = NotificationFilters.CreateConstIterator(); It; ++It)
+			{
+				if (NotificationMessage.Contains(Notifications[*It].SearchKeyword) && !EmailAddress.IsEmpty()) {
+					//SendEmail(NotificationMessage);
+					UE_LOG(LogTemp, Display, TEXT("Notification: '%s' Sent to: '%s'"), *FString(Window->GetContent()->GetAccessibleSummary().ToString()), *FString(EmailAddress));
+				}
 			}
 			
 			Window->SetTitle(FText::FromString("ok"));

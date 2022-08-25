@@ -99,8 +99,8 @@ void SNotifyOptionsWidget::Construct(const FArguments& InArgs)
 	Container->AddSlot().AutoHeight()
 	[
 		SNew(SButton)
-		.Text(LOCTEXT("SpawnNotification", "Debug Notification"))
-		.ToolTipText(LOCTEXT("SpawnNotification_Tooltip", "Creates a super cool Notification!"))
+		.Text(LOCTEXT("SpawnNotification", "Test Notification"))
+		.ToolTipText(LOCTEXT("SpawnNotification_Tooltip", "Debug notification"))
 		.OnClicked(this, &SNotifyOptionsWidget::SpawnNotification)
 	];
 	
