@@ -1,5 +1,5 @@
 #include "NotificationFilters.h"
-#include "SNotifyOptionsWidget.h"
+#include "SOptionsWidget.h"
 #include <SlateOptMacros.h>
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SScrollBox.h"

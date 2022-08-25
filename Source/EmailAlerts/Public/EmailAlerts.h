@@ -7,7 +7,7 @@
 class FToolBarBuilder;
 class FMenuBuilder;
 
-class FNotifySMSModule : public IModuleInterface
+class FEmailAlertsModule : public IModuleInterface
 {
 public:
 

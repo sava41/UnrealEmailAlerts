@@ -1,6 +1,6 @@
-#include "NotifySMS.h"
-#include "NotifySMSStyle.h"
-#include "NotifySMSCommands.h"
+#include "EmailAlerts.h"
+#include "EmailAlertsStyle.h"
+#include "EmailAlertsCommands.h"
 #include "Twilio.h"
 
 #include "LevelEditor.h"
@@ -10,39 +10,39 @@
 #include "Framework/Notifications/NotificationManager.h"
 #include "HttpModule.h"
 #include "ToolMenus.h"
-#include "SNotifyOptionsWidget.h"
+#include "SOptionsWidget.h"
 #include "NotificationFilters.h"
 
 #include <regex>
 
-static const FName NotifySMSTabName("Email Alerts");
+static const FName EmailAlertsTabName("Email Alerts");
 
-#define LOCTEXT_NAMESPACE "FNotifySMSModule"
+#define LOCTEXT_NAMESPACE "FEmailAlertsModule"
 
-void FNotifySMSModule::StartupModule()
+void FEmailAlertsModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 	
-	FNotifySMSStyle::Initialize();
-	FNotifySMSStyle::ReloadTextures();
+	FEmailAlertsStyle::Initialize();
+	FEmailAlertsStyle::ReloadTextures();
 
-	FNotifySMSCommands::Register();
+	FEmailAlertsCommands::Register();
 	
 	PluginCommands = MakeShareable(new FUICommandList);
 
 	PluginCommands->MapAction(
-		FNotifySMSCommands::Get().OpenPluginWindow,
-		FExecuteAction::CreateRaw(this, &FNotifySMSModule::PluginButtonClicked),
+		FEmailAlertsCommands::Get().OpenPluginWindow,
+		FExecuteAction::CreateRaw(this, &FEmailAlertsModule::PluginButtonClicked),
 		FCanExecuteAction());
 
-	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FNotifySMSModule::RegisterMenus));
+	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FEmailAlertsModule::RegisterMenus));
 	
-	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(NotifySMSTabName, FOnSpawnTab::CreateRaw(this, &FNotifySMSModule::OnSpawnPluginTab))
-		.SetDisplayName(LOCTEXT("FNotifySMSTabTitle", "Email Alerts"))
+	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(EmailAlertsTabName, FOnSpawnTab::CreateRaw(this, &FEmailAlertsModule::OnSpawnPluginTab))
+		.SetDisplayName(LOCTEXT("FEmailAlertsTabTitle", "Email Alerts"))
 		.SetMenuType(ETabSpawnerMenuType::Hidden);
 }
 
-void FNotifySMSModule::ShutdownModule()
+void FEmailAlertsModule::ShutdownModule()
 {
 	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
 	// we call this function before unloading the module.
@@ -51,23 +51,23 @@ void FNotifySMSModule::ShutdownModule()
 
 	UToolMenus::UnregisterOwner(this);
 
-	FNotifySMSStyle::Shutdown();
+	FEmailAlertsStyle::Shutdown();
 
-	FNotifySMSCommands::Unregister();
+	FEmailAlertsCommands::Unregister();
 
-	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(NotifySMSTabName);
+	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(EmailAlertsTabName);
 
 }
 
-TSharedRef<SDockTab> FNotifySMSModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
+TSharedRef<SDockTab> FEmailAlertsModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
-	TickDelegate = FTickerDelegate::CreateRaw(this, &FNotifySMSModule::Tick);
+	TickDelegate = FTickerDelegate::CreateRaw(this, &FEmailAlertsModule::Tick);
 	TickDelegateHandle = FTicker::GetCoreTicker().AddTicker(TickDelegate, 1.0);
 
 	FText WidgetText = FText::Format(
 		LOCTEXT("WindowWidgetText", "Add code to {0} in {1} to override this window's contents"),
-		FText::FromString(TEXT("FNotifySMSModule::OnSpawnPluginTab")),
-		FText::FromString(TEXT("NotifySMS.cpp"))
+		FText::FromString(TEXT("FEmailAlertsModule::OnSpawnPluginTab")),
+		FText::FromString(TEXT("EmailAlerts.cpp"))
 	);
 
 	TSharedRef<SDockTab> PluginTab = SNew(SDockTab)
@@ -79,19 +79,19 @@ TSharedRef<SDockTab> FNotifySMSModule::OnSpawnPluginTab(const FSpawnTabArgs& Spa
 			.Padding(FMargin(5))
 			[
 				SNew(SNotifyOptionsWidget)
-				.EmailCallback(FOnEmailChanged::CreateRaw(this, &FNotifySMSModule::SetEmail))
-				.FiltersCallback(FOnFilterStateChanged::CreateRaw(this, &FNotifySMSModule::SetNotification))
+				.EmailCallback(FOnEmailChanged::CreateRaw(this, &FEmailAlertsModule::SetEmail))
+				.FiltersCallback(FOnFilterStateChanged::CreateRaw(this, &FEmailAlertsModule::SetNotification))
 			]
 		];
 
-	PluginTab->SetOnTabClosed(SDockTab::FOnTabClosedCallback::CreateRaw(this, &FNotifySMSModule::OnClosePluginTab));
+	PluginTab->SetOnTabClosed(SDockTab::FOnTabClosedCallback::CreateRaw(this, &FEmailAlertsModule::OnClosePluginTab));
 
 	EmailAddress.Reset();
 
 	return PluginTab;
 }
 
-bool FNotifySMSModule::SetEmail(const FText& InText)
+bool FEmailAlertsModule::SetEmail(const FText& InText)
 {
 	if (IsEmailValid(InText.ToString())) {
 		EmailAddress = InText.ToString();
@@ -103,7 +103,7 @@ bool FNotifySMSModule::SetEmail(const FText& InText)
 	}
 }
 
-void FNotifySMSModule::SetNotification(uint32 Index, bool IsEnabled)
+void FEmailAlertsModule::SetNotification(uint32 Index, bool IsEnabled)
 {
 	if (Notifications.IsValidIndex(Index)) {
 		if (IsEnabled) {
@@ -115,18 +115,18 @@ void FNotifySMSModule::SetNotification(uint32 Index, bool IsEnabled)
 	}
 }
 
-void FNotifySMSModule::OnClosePluginTab(TSharedRef<SDockTab> TabBeingClosed)
+void FEmailAlertsModule::OnClosePluginTab(TSharedRef<SDockTab> TabBeingClosed)
 {
 	FTicker::GetCoreTicker().RemoveTicker(TickDelegateHandle);
 	TabBeingClosed->SetOnTabClosed(SDockTab::FOnTabClosedCallback());
 }
 
-void FNotifySMSModule::PluginButtonClicked()
+void FEmailAlertsModule::PluginButtonClicked()
 {
-	FGlobalTabmanager::Get()->TryInvokeTab(NotifySMSTabName);
+	FGlobalTabmanager::Get()->TryInvokeTab(EmailAlertsTabName);
 }
 
-void FNotifySMSModule::RegisterMenus()
+void FEmailAlertsModule::RegisterMenus()
 {
 	// Owner will be used for cleanup in call to UToolMenus::UnregisterOwner
 	FToolMenuOwnerScoped OwnerScoped(this);
@@ -135,7 +135,7 @@ void FNotifySMSModule::RegisterMenus()
 		UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Window");
 		{
 			FToolMenuSection& Section = Menu->FindOrAddSection("WindowLayout");
-			Section.AddMenuEntryWithCommandList(FNotifySMSCommands::Get().OpenPluginWindow, PluginCommands);
+			Section.AddMenuEntryWithCommandList(FEmailAlertsCommands::Get().OpenPluginWindow, PluginCommands);
 		}
 	}
 
@@ -144,14 +144,14 @@ void FNotifySMSModule::RegisterMenus()
 		{
 			FToolMenuSection& Section = ToolbarMenu->FindOrAddSection("Settings");
 			{
-				FToolMenuEntry& Entry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(FNotifySMSCommands::Get().OpenPluginWindow));
+				FToolMenuEntry& Entry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(FEmailAlertsCommands::Get().OpenPluginWindow));
 				Entry.SetCommandList(PluginCommands);
 			}
 		}
 	}
 }
 
-bool FNotifySMSModule::Tick(float DeltaTime)
+bool FEmailAlertsModule::Tick(float DeltaTime)
 {
 	TArray< TSharedRef<SWindow> > NotificationWindows;
 	FSlateNotificationManager::Get().GetWindows(NotificationWindows);
@@ -175,7 +175,7 @@ bool FNotifySMSModule::Tick(float DeltaTime)
 	return true;
 }
 
-void FNotifySMSModule::SendEmail(const FString& NotificationMessage)
+void FEmailAlertsModule::SendEmail(const FString& NotificationMessage)
 {
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> httpRequest = FHttpModule::Get().CreateRequest();
 	httpRequest->SetURL(TEXT("https://api.sendgrid.com/v3/mail/send"));
@@ -197,7 +197,7 @@ void FNotifySMSModule::SendEmail(const FString& NotificationMessage)
 	httpRequest->ProcessRequest();
 }
 
-bool FNotifySMSModule::IsEmailValid(const FString& Email)
+bool FEmailAlertsModule::IsEmailValid(const FString& Email)
 {
 	// define a regular expression
 	const std::regex pattern
@@ -208,4 +208,4 @@ bool FNotifySMSModule::IsEmailValid(const FString& Email)
 
 #undef LOCTEXT_NAMESPACE
 	
-IMPLEMENT_MODULE(FNotifySMSModule, NotifySMS)
+IMPLEMENT_MODULE(FEmailAlertsModule, EmailAlerts)

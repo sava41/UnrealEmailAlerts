@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class NotifySMS : ModuleRules
+public class EmailAlerts : ModuleRules
 {
-	public NotifySMS(ReadOnlyTargetRules Target) : base(Target)
+	public EmailAlerts(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 

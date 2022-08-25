@@ -1,6 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "NotifySMSStyle.h"
+#include "EmailAlertsStyle.h"
 #include "Styling/SlateStyleRegistry.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Slate/SlateGameResources.h"
@@ -9,9 +9,9 @@
 
 #define RootToContentDir Style->RootToContentDir
 
-TSharedPtr<FSlateStyleSet> FNotifySMSStyle::StyleInstance = nullptr;
+TSharedPtr<FSlateStyleSet> FEmailAlertsStyle::StyleInstance = nullptr;
 
-void FNotifySMSStyle::Initialize()
+void FEmailAlertsStyle::Initialize()
 {
 	if (!StyleInstance.IsValid())
 	{
@@ -20,33 +20,33 @@ void FNotifySMSStyle::Initialize()
 	}
 }
 
-void FNotifySMSStyle::Shutdown()
+void FEmailAlertsStyle::Shutdown()
 {
 	FSlateStyleRegistry::UnRegisterSlateStyle(*StyleInstance);
 	ensure(StyleInstance.IsUnique());
 	StyleInstance.Reset();
 }
 
-FName FNotifySMSStyle::GetStyleSetName()
+FName FEmailAlertsStyle::GetStyleSetName()
 {
-	static FName StyleSetName(TEXT("NotifySMSStyle"));
+	static FName StyleSetName(TEXT("EmailAlertsStyle"));
 	return StyleSetName;
 }
 
 const FVector2D Icon16x16(16.0f, 16.0f);
 const FVector2D Icon20x20(20.0f, 20.0f);
 
-TSharedRef< FSlateStyleSet > FNotifySMSStyle::Create()
+TSharedRef< FSlateStyleSet > FEmailAlertsStyle::Create()
 {
-	TSharedRef< FSlateStyleSet > Style = MakeShareable(new FSlateStyleSet("NotifySMSStyle"));
-	Style->SetContentRoot(IPluginManager::Get().FindPlugin("NotifySMS")->GetBaseDir() / TEXT("Resources"));
+	TSharedRef< FSlateStyleSet > Style = MakeShareable(new FSlateStyleSet("EmailAlertsStyle"));
+	Style->SetContentRoot(IPluginManager::Get().FindPlugin("EmailAlerts")->GetBaseDir() / TEXT("Resources"));
 
-	Style->Set("NotifySMS.OpenPluginWindow", new IMAGE_BRUSH_SVG(TEXT("PlaceholderButtonIcon"), Icon20x20));
+	Style->Set("EmailAlerts.OpenPluginWindow", new IMAGE_BRUSH_SVG(TEXT("PlaceholderButtonIcon"), Icon20x20));
 
 	return Style;
 }
 
-void FNotifySMSStyle::ReloadTextures()
+void FEmailAlertsStyle::ReloadTextures()
 {
 	if (FSlateApplication::IsInitialized())
 	{
@@ -54,7 +54,7 @@ void FNotifySMSStyle::ReloadTextures()
 	}
 }
 
-const ISlateStyle& FNotifySMSStyle::Get()
+const ISlateStyle& FEmailAlertsStyle::Get()
 {
 	return *StyleInstance;
 }
