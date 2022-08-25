@@ -6,9 +6,6 @@
 #include "LevelEditor.h"
 #include "Widgets/Docking/SDockTab.h"
 #include "Widgets/Layout/SBox.h"
-#include "Widgets/Text/STextBlock.h"
-#include "Widgets/Layout/SSeparator.h"
-#include "Widgets/Layout/SBorder.h"
 #include "Widgets/Notifications/SNotificationList.h"
 #include "Framework/Notifications/NotificationManager.h"
 #include "HttpModule.h"
@@ -79,15 +76,11 @@ TSharedRef<SDockTab> FNotifySMSModule::OnSpawnPluginTab(const FSpawnTabArgs& Spa
 			SNew(SBox)
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Top)
+			.Padding(FMargin(5))
 			[
-				SNew(SBorder)
-				.Padding(FMargin(5.0f))
-				.BorderBackgroundColor(FLinearColor(0.0f, 0.0f, 0.0f, 0.0f))
-				[
-					SNew(SNotifyOptionsWidget)
-					.EmailCallback(FOnEmailChanged::CreateRaw(this, &FNotifySMSModule::SetEmail))
-					.FiltersCallback(FOnFilterStateChanged::CreateRaw(this, &FNotifySMSModule::SetNotification))
-				]
+				SNew(SNotifyOptionsWidget)
+				.EmailCallback(FOnEmailChanged::CreateRaw(this, &FNotifySMSModule::SetEmail))
+				.FiltersCallback(FOnFilterStateChanged::CreateRaw(this, &FNotifySMSModule::SetNotification))
 			]
 		];
 
@@ -171,7 +164,7 @@ bool FNotifySMSModule::Tick(float DeltaTime)
 			for (auto It = NotificationFilters.CreateConstIterator(); It; ++It)
 			{
 				if (NotificationMessage.Contains(Notifications[*It].SearchKeyword) && !EmailAddress.IsEmpty()) {
-					//SendEmail(NotificationMessage);
+					SendEmail(NotificationMessage);
 					UE_LOG(LogTemp, Display, TEXT("Notification: '%s' Sent to: '%s'"), *FString(Window->GetContent()->GetAccessibleSummary().ToString()), *FString(EmailAddress));
 				}
 			}
