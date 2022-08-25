@@ -41,9 +41,9 @@ void SNotifyOptionsWidget::Construct(const FArguments& InArgs)
 		]
 		+ SHorizontalBox::Slot()
 		[
-			SNew(STextBlock)
-			.Justification(ETextJustify::Right)
-			.Text(FText::Format(LOCTEXT("MyWidgetName", "{0}"), FText::FromName("Invalid Email")))
+			SAssignNew(EmailWarning, STextBlock)
+			.ColorAndOpacity(FLinearColor(1.0f, 0.0f, 0.0f, 0.0f))
+			.Text(FText::Format(LOCTEXT("MyWidgetName", "{0}"), FText::FromName("	Invalid Email")))
 		]
 	];
 
@@ -108,8 +108,16 @@ void SNotifyOptionsWidget::Construct(const FArguments& InArgs)
 }
 
 void SNotifyOptionsWidget::OnTextCommitted(const FText& InText, ETextCommit::Type InCommitType)
-{
-	EmailCallback.ExecuteIfBound(InText, InCommitType);
+{	
+	if (!EmailCallback.IsBound()) return;
+
+	if (EmailCallback.Execute(InText)) {
+		EmailWarning->SetColorAndOpacity(FLinearColor(1.0f, 0.0f, 0.0f, 0.0f));
+	}
+	else {
+		EmailWarning->SetColorAndOpacity(FLinearColor(1.0f, 0.0f, 0.0f, 1.0f));
+	}
+
 }
 
 void SNotifyOptionsWidget::OnCheckStateChanged(ECheckBoxState InState)

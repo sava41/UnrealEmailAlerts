@@ -18,7 +18,7 @@
 
 #include <regex>
 
-static const FName NotifySMSTabName("NotifySMS");
+static const FName NotifySMSTabName("Email Alerts");
 
 #define LOCTEXT_NAMESPACE "FNotifySMSModule"
 
@@ -41,7 +41,7 @@ void FNotifySMSModule::StartupModule()
 	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FNotifySMSModule::RegisterMenus));
 	
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(NotifySMSTabName, FOnSpawnTab::CreateRaw(this, &FNotifySMSModule::OnSpawnPluginTab))
-		.SetDisplayName(LOCTEXT("FNotifySMSTabTitle", "NotifySMS"))
+		.SetDisplayName(LOCTEXT("FNotifySMSTabTitle", "Email Alerts"))
 		.SetMenuType(ETabSpawnerMenuType::Hidden);
 }
 
@@ -78,14 +78,14 @@ TSharedRef<SDockTab> FNotifySMSModule::OnSpawnPluginTab(const FSpawnTabArgs& Spa
 		[
 			SNew(SBox)
 			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Center)
+			.VAlign(VAlign_Top)
 			[
 				SNew(SBorder)
 				.Padding(FMargin(5.0f))
 				.BorderBackgroundColor(FLinearColor(0.0f, 0.0f, 0.0f, 0.0f))
 				[
 					SNew(SNotifyOptionsWidget)
-					.EmailCallback(FOnTextCommitted::CreateRaw(this, &FNotifySMSModule::SetEmail))
+					.EmailCallback(FOnEmailChanged::CreateRaw(this, &FNotifySMSModule::SetEmail))
 					.FiltersCallback(FOnFilterStateChanged::CreateRaw(this, &FNotifySMSModule::SetNotification))
 				]
 			]
@@ -96,16 +96,16 @@ TSharedRef<SDockTab> FNotifySMSModule::OnSpawnPluginTab(const FSpawnTabArgs& Spa
 	return PluginTab;
 }
 
-void FNotifySMSModule::SetEmail(const FText& InText, ETextCommit::Type InCommitType)
+bool FNotifySMSModule::SetEmail(const FText& InText)
 {
 	if (IsEmailValid(InText.ToString())) {
 		EmailAddress = InText.ToString();
+		return true;
 	}
 	else {
-		UE_LOG(LogTemp, Warning, TEXT("Invalid email"));
+		EmailAddress.Reset();
+		return false;
 	}
-
-	return;
 }
 
 void FNotifySMSModule::SetNotification(uint32 Index, bool IsEnabled)
@@ -165,11 +165,13 @@ bool FNotifySMSModule::Tick(float DeltaTime)
 		if (Window->GetType() == EWindowType::Notification && Window->GetTitle().IsEmpty())
 		{
 			FString NotificationMessage = Window->GetContent()->GetAccessibleSummary().ToString();
-			SendEmail(NotificationMessage);
+
+			if (!EmailAddress.IsEmpty()) {
+				SendEmail(NotificationMessage);
+				UE_LOG(LogTemp, Display, TEXT("Notification: '%s' Sent to: '%s'"), *FString(Window->GetContent()->GetAccessibleSummary().ToString()), *FString(EmailAddress));
+			}
 			
 			Window->SetTitle(FText::FromString("ok"));
-			
-			//UE_LOG(LogTemp, Warning, TEXT("Notification: %s Sent to: %s"), *FString(Window->GetContent()->GetAccessibleSummary().ToString()), *FString(EmailAddress));
 		}
 	}
 	return true;

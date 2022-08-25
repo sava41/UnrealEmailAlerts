@@ -28,9 +28,9 @@ private:
 	TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
 	void OnClosePluginTab(TSharedRef<SDockTab> TabBeingClosed);
 
-	void SetEmail(const FText& InText, ETextCommit::Type InCommitType);
+	bool SetEmail(const FText& InText);
 	void SetNotification(uint32 Index, bool IsEnabled);
-
+	
 	FTickerDelegate TickDelegate;
 	FDelegateHandle TickDelegateHandle;
 

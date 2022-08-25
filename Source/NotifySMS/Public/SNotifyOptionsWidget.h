@@ -3,7 +3,8 @@
 #include "CoreMinimal.h"
 #include "NotificationFilters.h"
 
-DECLARE_DELEGATE_RetVal_TwoParams(void, FOnFilterStateChanged, uint32 /* Index */, bool /* IsEnabled */)
+DECLARE_DELEGATE_RetVal_TwoParams(void, FOnFilterStateChanged, uint32 /* Index */, bool /* IsEnabled */);
+DECLARE_DELEGATE_RetVal_OneParam(bool, FOnEmailChanged, const FText& /* InText */);
 
 /**
  * A CompoundWidget is the base from which most non-primitive widgets should be built.
@@ -17,7 +18,7 @@ public:
 	SLATE_BEGIN_ARGS(SNotifyOptionsWidget)
 	{}
 		SLATE_EVENT(FOnFilterStateChanged, FiltersCallback)
-		SLATE_EVENT(FOnTextCommitted, EmailCallback)
+		SLATE_EVENT(FOnEmailChanged, EmailCallback)
 
 	SLATE_END_ARGS()
 
@@ -30,12 +31,12 @@ public:
 
 	FReply SpawnNotification();
 
-protected:
-
-	FOnTextCommitted EmailCallback;
-	FOnFilterStateChanged FiltersCallback;
-
 private:
+
+	FOnFilterStateChanged FiltersCallback;
+	FOnEmailChanged EmailCallback;
+
+	TSharedPtr<STextBlock> EmailWarning;
 
 	void OnTextCommitted(const FText& InText, ETextCommit::Type InCommitType);
 	void OnCheckStateChanged(ECheckBoxState InState);
