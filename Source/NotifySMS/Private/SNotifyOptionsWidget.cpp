@@ -129,7 +129,7 @@ void SNotifyOptionsWidget::OnCheckStateChanged(ECheckBoxState InState)
 
 FReply SNotifyOptionsWidget::SpawnNotification()
 {
-	FNotificationInfo Info(LOCTEXT("SpawnNotification_Notification", "This is a notification."));
+	FNotificationInfo Info(LOCTEXT("SpawnNotification_Notification", "Test Notification"));
 	Info.ExpireDuration = 5.0f;
 	FSlateNotificationManager::Get().AddNotification(Info);
 

@@ -12,5 +12,5 @@ const TArray<NotificationType> Notifications =
 	{ "Shaders compiled", "shader"},
 	{ "Code compiled",  "coding"},
 	{ "Level compiled", "level"},
-	{ "Test notification", "This is a notification."}
+	{ "Test notification", "Test Notification"}
 };

@@ -93,6 +93,8 @@ TSharedRef<SDockTab> FNotifySMSModule::OnSpawnPluginTab(const FSpawnTabArgs& Spa
 
 	PluginTab->SetOnTabClosed(SDockTab::FOnTabClosedCallback::CreateRaw(this, &FNotifySMSModule::OnClosePluginTab));
 
+	EmailAddress.Reset();
+
 	return PluginTab;
 }
 
@@ -191,10 +193,11 @@ void FNotifySMSModule::SendEmail(const FString& NotificationMessage)
 
 	const FString Payload(TEXT("{\"personalizations\": [{ \
 		\"to\": [{\"email\": \"" + EmailAddress + "\"}]}], \
-		\"from\": {\"email\": \"unrealalerts@gmail.com\"}, \
+		\"from\": {\"email\": \"" + FString(TWILIO_EMAIL) + "\"}, \
 		\"subject\": \"Unreal Engine Did Something\", \
 		\"content\": [{\"type\": \"text / plain\", \"value\": \"") 
-	+ NotificationMessage + TEXT("\"}]}"));
+		+ NotificationMessage.Replace(TEXT("\n"), TEXT("")) 
+		+ TEXT("\"}]}"));
 
 	httpRequest->SetContentAsString(Payload);
 
