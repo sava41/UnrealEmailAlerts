@@ -71,18 +71,20 @@ TSharedRef<SDockTab> FEmailAlertsModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 	);
 
 	TSharedRef<SDockTab> PluginTab = SNew(SDockTab)
-		.TabRole(ETabRole::NomadTab)
+	.TabRole(ETabRole::NomadTab)
+	[
+		SNew(SBox)
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Top)
+		.Padding(FMargin(5))
 		[
-			SNew(SBox)
-			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Top)
-			.Padding(FMargin(5))
-			[
-				SNew(SNotifyOptionsWidget)
-				.EmailCallback(FOnEmailChanged::CreateRaw(this, &FEmailAlertsModule::SetEmail))
-				.FiltersCallback(FOnFilterStateChanged::CreateRaw(this, &FEmailAlertsModule::SetNotification))
-			]
-		];
+			SNew(SNotifyOptionsWidget)
+			.EmailCallback(FOnEmailChanged::CreateRaw(this, &FEmailAlertsModule::SetEmail))
+			.FiltersCallback(FOnFilterStateChanged::CreateRaw(this, &FEmailAlertsModule::SetNotification))
+		]
+	];
+
+	FEmailAlertsStyle::SetTabIcon(PluginTab);
 
 	PluginTab->SetOnTabClosed(SDockTab::FOnTabClosedCallback::CreateRaw(this, &FEmailAlertsModule::OnClosePluginTab));
 

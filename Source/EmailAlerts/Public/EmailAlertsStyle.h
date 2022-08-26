@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Styling/SlateStyle.h"
+#include "Widgets/Docking/SDockTab.h"
 
 /**  */
 class FEmailAlertsStyle
@@ -21,6 +22,8 @@ public:
 	static const ISlateStyle& Get();
 
 	static FName GetStyleSetName();
+
+	static void SetTabIcon(TSharedRef<SDockTab> PluginTab);
 
 private:
 
